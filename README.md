@@ -2,6 +2,7 @@ machine-learning-2014
 =====================
 
 機械学習分科会 for TSG2014 winter
+詳細は[Wiki](https://github.com/levelfour/machine-learning-2014/wiki)へ．
 
 # 内容
 + Pythonの環境構築
