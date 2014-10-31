@@ -18,6 +18,7 @@ train_x, test_x, train_y, test_y = cross_validation.train_test_split(data, targe
 # 最小二乗法で学習
 w = np.linalg.inv(train_x.T.dot(train_x)).dot(train_x.T).dot(train_y)
 
+print np.array([w.T.dot(d) for d in test_x])
 # 最小二乗法で推定
 pred_y = np.array([np.argmax(w.T.dot(d)) for d in test_x])
 true_y = np.array([np.argmax(d) for d in test_y])
