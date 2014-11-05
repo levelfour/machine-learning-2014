@@ -19,4 +19,21 @@ Y = np.array([
 # 最小二乗法による学習
 w = np.linalg.inv(X.T.dot(X)).dot(X.T).dot(Y)
 
-print w
+v = np.array([
+	14,
+	0,
+	0,
+	0,
+	100,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0])
+# w.T.dot(v) = [-0.15889022  0.63867965  0.44747914]
+# np.argmax(w.T.dot(v)) = 1
+# したがってクラス2
+print np.argmax(w.T.dot(v))
