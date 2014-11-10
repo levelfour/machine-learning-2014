@@ -12,7 +12,7 @@ class MultiLayerPerceptron:
 		np.seterr(over='ignore')
 		# 重みベクトルの初期値はランダムなベクトルとする
 		self.w = np.random.uniform(-1., 1., (n_mnodes, dim))
-		self.v = np.random.uniform(-1., 1., (n_mnodes,))
+		self.v = np.random.uniform(-1., 1., (n_onodes, n_mnodes))
 		self.n_mnodes = n_mnodes # 中間層のノード数
 		self.n_onodes = n_onodes # 出力層のノード数
 		self.eta = eta
@@ -32,15 +32,20 @@ class MultiLayerPerceptron:
 
 	def fit(self, x, t):
 		z = self.predict(x)
+		# 統一的に扱うためにラベルがスカラーの場合もベクトルで扱う
+		if not isinstance(t, np.ndarray):
+			t = np.array([t])
 		# 最急降下法で係数ベクトルを更新する
 		self.w = np.array([
-			self.w[m]-self.eta*2*(z-t)*self.v[m]*self.g_(x)*x 
+			self.w[m]-self.eta*2*(z-t)*self.v.T[m]*self.g_(x)*x 
 			for m in range(self.n_mnodes)])
-		self.v = self.v - self.eta*2*(z-t)*self.hidden_layer(x)
+		self.v = np.array([
+			self.v[k]-self.eta*2*(z[k]-t[k])*self.hidden_layer(x) 
+			for k in range(self.n_onodes)])
 		
 	def predict(self, x):
-		y = self.v.T.dot(self.hidden_layer(x))
-		return 1 if y >= 0 else -1
+		yy = self.v.dot(self.hidden_layer(x))
+		return np.array([1 if y >= 0 else -1 for y in yy])
 
 if __name__ == "__main__":
 	digits = datasets.load_digits()
