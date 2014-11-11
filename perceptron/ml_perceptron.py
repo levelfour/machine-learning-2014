@@ -10,6 +10,7 @@ class MultiLayerPerceptron:
 	def __init__(self, dim, n_mnodes, n_onodes=1, eta=1, beta=1):
 		# expでオーバーフローが発生することがあるがひとまず無視する
 		np.seterr(over='ignore')
+		np.seterr(divide='raise')
 		# 重みベクトルの初期値はランダムなベクトルとする
 		self.w = np.random.uniform(-1., 1., (n_mnodes, dim))
 		self.v = np.random.uniform(-1., 1., (n_onodes, n_mnodes))
@@ -36,8 +37,9 @@ class MultiLayerPerceptron:
 		if not isinstance(t, np.ndarray):
 			t = np.array([t])
 		# 最急降下法で係数ベクトルを更新する
+		# 計算式は頑張って読んでくださいm(_ _)m
 		self.w = np.array([
-			self.w[m]-self.eta*2*(z-t)*self.v.T[m]*self.g_(x)*x 
+			self.w[m]-self.eta*2*np.dot(z-t,self.v.T[m])*self.g_(np.dot(self.w[m],x))*x 
 			for m in range(self.n_mnodes)])
 		self.v = np.array([
 			self.v[k]-self.eta*2*(z[k]-t[k])*self.hidden_layer(x) 
@@ -48,21 +50,19 @@ class MultiLayerPerceptron:
 		return np.array([1 if y >= 0 else -1 for y in yy])
 
 if __name__ == "__main__":
+	# 数字パターンデータを用意
 	digits = datasets.load_digits()
-	data = None
-	target = None
-	for i in range(len(digits.data)):
-		if digits.target[i] == 0 or digits.target[i] == 1:
-			if data == None or target == None:
-				data = np.array([digits.data[i]])
-				target = np.array([1 if digits.target[i] == 1 else -1])
-			else:
-				data = np.r_[data, [digits.data[i]]]
-				target = np.r_[target, 1 if digits.target[i] == 1 else -1]
+	data = digits.data
+	# ラベルは10次元ベクトルで、正しいラベルのインデックスのみ1、他の要素は-1
+	# 例えば1なら[-1,1,-1,-1,...]
+	target = np.array([[-1 for i in range(10)] for j in range(len(data))])
+	for i in range(len(data)):
+		target[i][digits.target[i]] = 1
 
+	# 学習データとテストデータに分割
 	train_x, test_x, train_y, test_y = cross_validation.train_test_split(data, target, test_size=0.2)
 
-	p = MultiLayerPerceptron(dim = data[0].shape[0], eta = 0.3, n_mnodes = 10)
+	p = MultiLayerPerceptron(dim=data[0].shape[0], eta=0.1, beta=0.01, n_mnodes=10, n_onodes=10)
 	for i in range(len(train_x)):
 		p.fit(train_x[i], train_y[i])
 	
