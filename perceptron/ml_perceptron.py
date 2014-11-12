@@ -25,7 +25,7 @@ class MultiLayerPerceptron:
 
 	# シグモイド関数の1階導関数
 	def g_(self, x):
-		return self.beta*self.g(x)/(1-self.g(x))
+		return self.beta*self.g(x)*(1-self.g(x))
 
 	# 入力ベクトルから中間層の出力を得る
 	def hidden_layer(self, x):
